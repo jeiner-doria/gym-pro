@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla, etiqueta %}
+{% block titulo %}Membresías y pagos{% endblock %}
+{% block subtitulo %}RF08-13 membresías y pagos • RF26-29 planes Normal / Gold / Platino • RF30 clases disponibles{% endblock %}
+{% block subnav %}{{ subnav('membresias', [('crear','Crear membresía'),('asignar','Asignar / renovar / pagar'),('consultar','Consultar estado'),('listado','Listado de membresías')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'crear' %}
+<form method="post" class="card"><h2>Crear membresía</h2>
+  <input type="hidden" name="accion" value="crear">
+  <div class="grid">
+    {{ campo('Nombre', 'nombre', form.get('nombre')) }}
+    <label class="campo"><span>Plan</span>
+      <select name="plan" id="plan">{% for n, p in planes.items() %}<option value="{{ n }}" data-info="Precio: {{ p.precio|dinero }} • Clases incluidas: {{ p.clases }}" {{ 'selected' if form.get('plan') == n }}>{{ n }}</option>{% endfor %}</select>
+    </label>
+    {{ campo('Inicio', 'inicio', form.get('inicio', hoy), type='date') }}
+    {{ campo('Fin', 'fin', form.get('fin'), type='date') }}
+  </div>
+  <p class="nota" id="info-plan" style="color:var(--green);font-weight:700"></p>
+  <button class="btn verde">REGISTRAR MEMBRESÍA</button>
+</form>
+<script>
+const sel=document.getElementById('plan'),info=document.getElementById('info-plan');
+function act(){info.textContent=sel.options[sel.selectedIndex].dataset.info}
+sel.addEventListener('change',act);act();
+</script>
+{% elif s == 'asignar' %}
+<form method="post" class="card"><h2>Asignar / renovar / pagar</h2>
+  <input type="hidden" name="accion" value="asignar">
+  <div class="grid">
+    {{ campo('Identificación cliente', 'ci', form.get('ci'), num=True) }}
+    <label class="campo"><span>Membresía</span>
+      <select name="membresia_id" required>
+        <option value="">Selecciona…</option>
+        {% for m in lista %}<option value="{{ m[0] }}" data-precio="{{ m[3]|int }}" {{ 'selected' if form.get('membresia_id') == m[0]|string }}>#{{ m[0] }} · {{ m[1] }} ({{ m[2] }}, {{ m[3]|dinero }}) {{ m[5] }} → {{ m[6] }}</option>{% endfor %}
+      </select>
+    </label>
+    {{ campo('Fecha de pago', 'fecha_pago', form.get('fecha_pago', hoy), type='date') }}
+    {{ campo('Valor del pago', 'valor', form.get('valor'), type='number', extra='min="1" step="any" id="valor"') }}
+    {{ campo('Concepto', 'concepto', form.get('concepto', 'Pago membresia')) }}
+  </div>
+  <button class="btn azul">ASIGNAR / RENOVAR Y PAGAR</button>
+</form>
+<script>
+const m=document.querySelector('[name=membresia_id]'),v=document.getElementById('valor');
+m.addEventListener('change',()=>{const o=m.options[m.selectedIndex];if(o.dataset.precio&&!v.value)v.value=o.dataset.precio});
+</script>
+{% elif s == 'consultar' %}
+<form method="get" class="card"><h2>Consultar estado / historial de pagos</h2>
+  <input type="hidden" name="s" value="consultar">
+  <div class="grid">{{ campo('Identificación cliente', 'ci', ci, num=True) }}</div>
+  <button class="btn naranja">CONSULTAR</button>
+</form>
+{% if estado %}
+<div class="card"><h2>Estado de la membresía</h2>
+  <div class="stats">
+    <div class="stat"><span>Plan</span><b>{{ estado[0] }}</b></div>
+    <div class="stat"><span>Estado</span><b>{{ etiqueta(estado[3]) }}</b></div>
+    <div class="stat"><span>Clases incluidas</span><b>{{ estado[4] }}</b></div>
+    <div class="stat"><span>Clases disponibles</span><b>{{ estado[5] }}</b></div>
+  </div>
+  <p class="nota">Vigencia: {{ estado[1] }} → {{ estado[2] }}</p>
+</div>
+{% endif %}
+{% if pagos is not none and ci %}
+<div class="card"><h2>Historial de pagos</h2>{{ tabla(['Fecha','Valor','Concepto'], pagos, [1]) }}</div>
+{% endif %}
+{% else %}
+<div class="card"><h2>Membresías registradas</h2>
+<p class="nota">Usa el ID de esta tabla para asignar una membresía.</p>
+{% set filas = [] %}
+{% for m in lista %}{% set _ = filas.append((m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7])) %}{% endfor %}
+{{ tabla(['ID','Nombre','Plan','Precio','Clases','Inicio','Fin','Estado'], filas, [3]) }}</div>
+{% endif %}
+{% endblock %}

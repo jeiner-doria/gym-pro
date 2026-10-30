@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla %}
+{% block titulo %}Reportes{% endblock %}
+{% block subtitulo %}RF24 reportes básicos • RF40-48 pagos a instructores y resumen mensual{% endblock %}
+{% block subnav %}{{ subnav('reportes', [('general','Resumen general'),('pagos','Pagos a instructores'),('mensual','Resumen mensual')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'general' %}
+<div class="stats">
+  <div class="stat"><span>Total de clientes</span><b>{{ r.total_clientes }}</b></div>
+  <div class="stat"><span>Clientes activos</span><b>{{ r.clientes_activos }}</b></div>
+  <div class="stat"><span>Membresías activas</span><b>{{ r.membresias_activas }}</b></div>
+  <div class="stat"><span>Membresías por vencer</span><b>{{ r.membresias_por_vencer }}</b></div>
+  <div class="stat"><span>Membresías vencidas</span><b>{{ r.membresias_vencidas }}</b></div>
+  <div class="stat"><span>Dinero recaudado</span><b>{{ r.total_recaudado|dinero }}</b></div>
+  <div class="stat"><span>Asistencias (ingresos)</span><b>{{ r.total_asistencias }}</b></div>
+  <div class="stat"><span>Clases realizadas</span><b>{{ r.total_clases_realizadas }}</b></div>
+  <div class="stat"><span>Máquinas registradas</span><b>{{ r.total_maquinas }}</b></div>
+  <div class="stat"><span>Máquinas en mantenimiento</span><b>{{ r.maquinas_mantenimiento }}</b></div>
+</div>
+{% else %}
+<form method="get" class="card"><h2>{{ 'Pagos a instructores' if s == 'pagos' else 'Resumen mensual' }}</h2>
+  <input type="hidden" name="s" value="{{ s }}">
+  <div class="grid">{{ campo('Mes', 'mes', mes or mes_actual, type='month') }}</div>
+  <button class="btn naranja">{{ 'CONSULTAR MES' if s == 'pagos' else 'GENERAR RESUMEN' }}</button>
+</form>
+{% if resumen %}
+{% if s == 'mensual' %}
+<div class="stats">
+  <div class="stat"><span>Clases realizadas</span><b>{{ resumen.total_clases }}</b></div>
+  <div class="stat"><span>Participantes (únicos)</span><b>{{ resumen.participantes_unicos }}</b></div>
+  <div class="stat"><span>Ingreso total por membresías</span><b>{{ resumen.ingreso_total_membresias|dinero }}</b></div>
+  <div class="stat"><span>Total a pagar a instructores</span><b>{{ resumen.total_pagar_instructores|dinero }}</b></div>
+</div>
+<div class="card"><h2>Participantes e ingresos por tipo de membresía</h2>
+{% set filas = [] %}{% for t in planes %}{% set _ = filas.append((t, resumen.participantes_por_membresia[t], resumen.ingresos_por_membresia[t])) %}{% endfor %}
+{{ tabla(['Membresía','Participantes','Ingresos'], filas, [2]) }}</div>
+{% else %}
+<div class="stats">
+  <div class="stat"><span>Clases realizadas en el mes</span><b>{{ resumen.total_clases }}</b></div>
+  <div class="stat"><span>Total a pagar a instructores</span><b>{{ resumen.total_pagar_instructores|dinero }}</b></div>
+</div>
+{% endif %}
+<div class="card"><h2>Pagos a instructores</h2>
+{% set filas = [] %}{% for p in resumen.pagos_instructores %}{% set _ = filas.append((p[1], p[2], p[3], p[4])) %}{% endfor %}
+{{ tabla(['Instructor','Especialidad','Clases del mes','Valor a pagar'], filas, [3]) }}</div>
+{% endif %}
+{% endif %}
+{% endblock %}

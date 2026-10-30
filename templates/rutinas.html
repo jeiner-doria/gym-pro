@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla %}
+{% block titulo %}Rutinas{% endblock %}
+{% block subtitulo %}RF20 registrar rutinas • RF21 asignar entrenador • RF22 consultar rutina de un cliente{% endblock %}
+{% block subnav %}{{ subnav('rutinas', [('registrar','Registrar rutina'),('asignar','Asignar entrenador'),('consultar','Consultar rutina'),('listado','Listado')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'registrar' %}
+<form method="post" class="card"><h2>Registrar rutina</h2>
+  <input type="hidden" name="accion" value="registrar">
+  <div class="grid">
+    {{ campo('Identificación cliente', 'ci', form.get('ci'), num=True) }}
+    {{ campo('Nombre de la rutina', 'nombre', form.get('nombre')) }}
+    {{ campo('Fecha', 'fecha', form.get('fecha', hoy), type='date') }}
+  </div>
+  <label class="campo" style="margin-bottom:14px"><span>Descripción</span><textarea name="descripcion" required>{{ form.get('descripcion', '') }}</textarea></label>
+  <button class="btn verde">REGISTRAR RUTINA</button>
+</form>
+{% elif s == 'asignar' %}
+<form method="post" class="card"><h2>Asignar entrenador a un cliente</h2>
+  <input type="hidden" name="accion" value="asignar">
+  <div class="grid">
+    {{ campo('Identificación cliente', 'ci', form.get('ci'), num=True) }}
+    <label class="campo"><span>Entrenador</span><select name="entrenador_id" required><option value="">Selecciona…</option>
+      {% for e in entrenadores %}<option value="{{ e[0] }}">#{{ e[0] }} · {{ e[2] }} ({{ e[3] }})</option>{% endfor %}</select></label>
+  </div>
+  <button class="btn azul">ASIGNAR ENTRENADOR</button>
+</form>
+{% elif s == 'consultar' %}
+<form method="get" class="card"><h2>Consultar rutina de un cliente</h2>
+  <input type="hidden" name="s" value="consultar">
+  <div class="grid">{{ campo('Identificación cliente', 'ci', ci, num=True) }}</div>
+  <button class="btn naranja">CONSULTAR</button>
+</form>
+{% if mis %}<div class="card"><h2>Rutinas del cliente</h2>
+{% set filas = [] %}{% for r in mis %}{% set _ = filas.append((r[3], r[4], r[5])) %}{% endfor %}
+{{ tabla(['Rutina','Descripción','Fecha'], filas) }}</div>{% endif %}
+{% else %}
+<div class="card"><h2>Rutinas registradas</h2>
+{% set filas = [] %}{% for r in lista %}{% set _ = filas.append((r[1], r[2], r[3], r[4], r[5])) %}{% endfor %}
+{{ tabla(['Identificación','Cliente','Rutina','Descripción','Fecha'], filas) }}</div>
+{% endif %}
+{% endblock %}

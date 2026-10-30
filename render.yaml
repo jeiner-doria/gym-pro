@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: gym-pro
+    runtime: python
+    plan: starter            # el disco persistente requiere un plan de pago
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --bind 0.0.0.0:$PORT
+    healthCheckPath: /salud
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_PATH
+        value: /var/data/gimnasio.db
+    disk:
+      name: gym-pro-datos
+      mountPath: /var/data
+      sizeGB: 1

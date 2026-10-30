@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla, etiqueta %}
+{% block titulo %}Control de acceso{% endblock %}
+{% block subtitulo %}RF14 ingreso • RF15 salida • RF16 bloqueo de acceso • RF23 asistencia • RF49-50 activar / desactivar{% endblock %}
+{% block subnav %}{{ subnav('accesos', [('registro','Ingreso / salida'),('asistencia','Ver asistencia'),('estado','Activar / desactivar'),('listado','Clientes')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'registro' %}
+<form method="post" class="card"><h2>Registrar ingreso o salida</h2>
+  <p class="nota">El acceso se bloquea si el cliente está desactivado o su membresía no está vigente.</p>
+  <div class="grid">{{ campo('Identificación cliente', 'ci', ci, num=True) }}</div>
+  <div class="acciones">
+    <button class="btn verde" name="accion" value="ingreso">REGISTRAR INGRESO</button>
+    <button class="btn naranja" name="accion" value="salida">REGISTRAR SALIDA</button>
+  </div>
+</form>
+{% elif s == 'asistencia' %}
+<form method="get" class="card"><h2>Historial de asistencia</h2>
+  <input type="hidden" name="s" value="asistencia">
+  <div class="grid">{{ campo('Identificación cliente', 'ci', ci, num=True) }}</div>
+  <button class="btn azul">VER ASISTENCIA</button>
+</form>
+{% if asistencia is not none and ci %}
+<div class="card"><h2>Ingresos y salidas</h2>{{ tabla(['Tipo','Fecha y hora'], asistencia) }}</div>
+{% endif %}
+{% elif s == 'estado' %}
+<form method="post" class="card"><h2>Consultar / cambiar estado del cliente</h2>
+  <p class="nota">Un cliente desactivado conserva su historial, pero no puede ingresar ni inscribirse en clases.</p>
+  <div class="grid">{{ campo('Identificación cliente', 'ci', ci, num=True) }}</div>
+  <div class="acciones">
+    <button class="btn gris" type="submit" formmethod="get" formaction="{{ url_for('accesos') }}" name="s" value="estado">CONSULTAR ESTADO</button>
+    <button class="btn rojo" name="accion" value="desactivar">DESACTIVAR</button>
+    <button class="btn verde" name="accion" value="activar">ACTIVAR</button>
+  </div>
+</form>
+{% if estado_cli %}<div class="card"><h2>{{ estado_cli[0] }} está: {{ etiqueta(estado_cli[1]) }}</h2></div>{% endif %}
+{% else %}
+<div class="card"><h2>Clientes</h2>
+{% set filas = [] %}
+{% for c in lista %}{% set _ = filas.append((c[1], c[2], c[6])) %}{% endfor %}
+{{ tabla(['Identificación','Nombre','Estado'], filas) }}</div>
+{% endif %}
+{% endblock %}

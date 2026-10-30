@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block titulo %}Error {{ codigo }}{% endblock %}
+{% block cuerpo %}
+<div class="login"><div class="card"><h1>{{ codigo }}</h1><p class="sub">{{ mensaje }}</p>
+<a class="btn azul" href="{{ url_for('raiz') }}" style="text-align:center">VOLVER AL INICIO</a></div></div>
+{% endblock %}

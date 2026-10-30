@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla, etiqueta %}
+{% block titulo %}Máquinas y mantenimiento{% endblock %}
+{% block subtitulo %}RF17 registrar • RF18 consultar • RF19 controlar mantenimiento y estado{% endblock %}
+{% block subnav %}{{ subnav('maquinas', [('registrar','Registrar'),('mantenimiento','Mantenimiento / estado'),('listado','Listado')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'registrar' %}
+<form method="post" class="card"><h2>Registrar máquina</h2>
+  <input type="hidden" name="accion" value="registrar">
+  <div class="grid">
+    {{ campo('Nombre', 'nombre', form.get('nombre')) }}
+    {{ campo('Marca', 'marca', form.get('marca')) }}
+    <label class="campo"><span>Estado</span><select name="estado">{% for e in ['Disponible','Mantenimiento','Fuera de servicio'] %}<option>{{ e }}</option>{% endfor %}</select></label>
+  </div>
+  <button class="btn verde">REGISTRAR MÁQUINA</button>
+</form>
+{% elif s == 'mantenimiento' %}
+<div class="card"><h2>Cambiar estado de una máquina</h2>
+{% if lista %}<div class="tabla-wrap"><table><thead><tr><th>ID</th><th>Nombre</th><th>Marca</th><th>Estado</th><th>Cambiar a</th></tr></thead><tbody>
+{% for m in lista %}<tr><td>{{ m[0] }}</td><td>{{ m[1] }}</td><td>{{ m[2] }}</td><td>{{ etiqueta(m[3]) }}</td>
+<td><form method="post" class="acciones" style="gap:6px"><input type="hidden" name="accion" value="estado"><input type="hidden" name="id" value="{{ m[0] }}">
+<button class="btn verde" name="estado" value="Disponible">Disponible</button>
+<button class="btn naranja" name="estado" value="Mantenimiento">Mantenimiento</button>
+<button class="btn rojo" name="estado" value="Fuera de servicio">Fuera de servicio</button></form></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="vacio">No hay máquinas registradas.</p>{% endif %}</div>
+{% else %}
+<div class="card"><h2>Máquinas registradas</h2>{{ tabla(['ID','Nombre','Marca','Estado'], lista) }}</div>
+{% endif %}
+{% endblock %}

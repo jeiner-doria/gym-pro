@@ -1,0 +1,19 @@
+{% macro subnav(endpoint, items, actual) -%}
+{% for key, label in items %}<a class="{{ 'on' if key == actual }}" href="{{ url_for(endpoint, s=key) }}">{{ label }}</a>{% endfor %}
+{%- endmacro %}
+
+{% macro campo(label, name, value='', type='text', num=False, req=True, extra='') -%}
+<label class="campo"><span>{{ label }}</span>
+<input type="{{ type }}" name="{{ name }}" value="{{ value if value is not none else '' }}"
+ {% if num %}inputmode="numeric" pattern="[0-9]+" title="Solo números"{% endif %} {% if req %}required{% endif %} {{ extra|safe }}></label>
+{%- endmacro %}
+
+{% macro tabla(cols, rows, dinero=[]) -%}
+{% if rows %}<div class="tabla-wrap"><table><thead><tr>{% for c in cols %}<th>{{ c }}</th>{% endfor %}</tr></thead><tbody>
+{% for r in rows %}<tr>{% for x in r %}<td>{% if loop.index0 in dinero %}{{ x|dinero }}{% else %}{{ x }}{% endif %}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="vacio">No hay registros para mostrar.</p>{% endif %}
+{%- endmacro %}
+
+{% macro etiqueta(estado) -%}
+<span class="tag {{ 'v' if estado in ('Activo','Activa','Disponible') else ('o' if estado in ('Por vencer','Mantenimiento','Inactiva') else 'r') }}">{{ estado }}</span>
+{%- endmacro %}

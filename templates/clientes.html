@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla, etiqueta %}
+{% block titulo %}Clientes{% endblock %}
+{% block subtitulo %}RF01 registrar • RF02 consultar • RF03 modificar • RF04 eliminar{% endblock %}
+{% block subnav %}{{ subnav('clientes', [('registrar','Registrar'),('buscar','Buscar / gestionar'),('listado','Listado')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'registrar' %}
+<form method="post" class="card"><h2>Registrar cliente</h2>
+  <input type="hidden" name="accion" value="registrar">
+  <div class="grid">
+    {{ campo('Nombre', 'nombre', form.get('nombre')) }}
+    {{ campo('Identificación', 'identificacion', form.get('identificacion'), num=True) }}
+    {{ campo('Teléfono', 'telefono', form.get('telefono'), num=True) }}
+    {{ campo('Correo', 'correo', form.get('correo'), type='email') }}
+    {{ campo('Fecha de nacimiento', 'fecha', form.get('fecha'), type='date') }}
+  </div>
+  <button class="btn verde">REGISTRAR CLIENTE</button>
+</form>
+{% elif s == 'buscar' %}
+<form method="get" class="card"><h2>Buscar cliente por identificación</h2>
+  <input type="hidden" name="s" value="buscar">
+  <div class="grid">{{ campo('Identificación', 'ci', ci, num=True) }}</div>
+  <button class="btn azul">BUSCAR</button>
+</form>
+{% if cliente %}
+<form method="post" class="card"><h2>{{ cliente[2] }} {{ etiqueta(cliente[6]) }}</h2>
+  <input type="hidden" name="ci" value="{{ cliente[1] }}">
+  <p class="nota">Identificación: {{ cliente[1] }}</p>
+  <div class="grid">
+    {{ campo('Nombre', 'nombre', form.get('nombre', cliente[2])) }}
+    {{ campo('Teléfono', 'telefono', form.get('telefono', cliente[3]), num=True) }}
+    {{ campo('Correo', 'correo', form.get('correo', cliente[4]), type='email') }}
+    {{ campo('Fecha de nacimiento', 'fecha', form.get('fecha', cliente[5]), type='date') }}
+  </div>
+  <div class="acciones">
+    <button class="btn naranja" name="accion" value="modificar">MODIFICAR</button>
+    <button class="btn rojo" name="accion" value="eliminar" formnovalidate onclick="return confirm('¿Eliminar este cliente y todos sus registros?')">ELIMINAR</button>
+  </div>
+</form>
+{% endif %}
+{% else %}
+<div class="card"><h2>Clientes registrados</h2>
+{% set filas = [] %}
+{% for c in lista %}{% set _ = filas.append((c[1], c[2], c[3], c[4], c[5], c[6])) %}{% endfor %}
+{{ tabla(['Identificación','Nombre','Teléfono','Correo','Nacimiento','Estado'], filas) }}</div>
+{% endif %}
+{% endblock %}

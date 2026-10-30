@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import subnav, campo, tabla %}
+{% block titulo %}Clases{% endblock %}
+{% block subtitulo %}RF29-36 clases disponibles y participación • RF39-43 pagos a instructores ({{ pago_clase|dinero }} por clase){% endblock %}
+{% block subnav %}{{ subnav('clases', [('registrar','Registrar participación'),('consultar','Clases disponibles'),('pagos','Pagos a instructores'),('listado','Listado de clases')], s) }}{% endblock %}
+{% block contenido %}
+{% if s == 'registrar' %}
+<form method="post" class="card"><h2>Registrar participación en una clase</h2>
+  <p class="nota">Se descuenta 1 clase disponible. Si el cliente ya usó todas, o está desactivado, el sistema lo impide.</p>
+  <input type="hidden" name="accion" value="registrar">
+  <div class="grid">
+    {{ campo('Identificación cliente', 'ci', form.get('ci'), num=True) }}
+    <label class="campo"><span>Instructor</span><select name="entrenador_id" required><option value="">Selecciona…</option>
+      {% for e in entrenadores %}<option value="{{ e[0] }}" {{ 'selected' if form.get('entrenador_id') == e[0]|string }}>#{{ e[0] }} · {{ e[2] }} ({{ e[3] }})</option>{% endfor %}</select></label>
+    {{ campo('Fecha de la clase', 'fecha', form.get('fecha', hoy), type='date') }}
+  </div>
+  <button class="btn verde">REGISTRAR PARTICIPACIÓN</button>
+</form>
+{% elif s == 'consultar' %}
+<form method="get" class="card"><h2>Consultar clases de un cliente</h2>
+  <input type="hidden" name="s" value="consultar">
+  <div class="grid">{{ campo('Identificación cliente', 'ci', ci, num=True) }}</div>
+  <button class="btn azul">CONSULTAR</button>
+</form>
+{% if disponibles is not none %}
+<div class="stats"><div class="stat"><span>Clases disponibles</span><b>{{ disponibles }}</b></div></div>
+<div class="card"><h2>Historial de clases</h2>{{ tabla(['ID','Fecha','Instructor'], historial) }}</div>
+{% endif %}
+{% elif s == 'pagos' %}
+<form method="get" class="card"><h2>Pagos a instructores por mes</h2>
+  <input type="hidden" name="s" value="pagos">
+  <div class="grid">{{ campo('Mes', 'mes', mes or mes_actual, type='month') }}</div>
+  <button class="btn naranja">CONSULTAR MES</button>
+</form>
+{% if pagos %}
+<div class="stats">
+  <div class="stat"><span>Clases realizadas en el mes</span><b>{{ pagos.total_clases }}</b></div>
+  <div class="stat"><span>Total a pagar a instructores</span><b>{{ pagos.total|dinero }}</b></div>
+</div>
+<div class="card">{% set filas = [] %}{% for p in pagos.filas %}{% set _ = filas.append((p[1], p[2], p[3], p[4])) %}{% endfor %}
+{{ tabla(['Instructor','Especialidad','Clases del mes','Valor a pagar'], filas, [3]) }}</div>
+{% endif %}
+{% else %}
+<div class="card"><h2>Clases realizadas</h2>{{ tabla(['ID','Identificación','Cliente','Instructor','Fecha'], lista) }}</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block titulo %}Panel de control{% endblock %}
+{% block subtitulo %}Bienvenido, {{ usuario }}. Selecciona un módulo en el menú lateral.{% endblock %}
+{% block contenido %}
+<div class="stats">
+  <div class="stat"><span>Clientes registrados</span><b>{{ r.total_clientes }}</b></div>
+  <div class="stat"><span>Clientes activos</span><b>{{ r.clientes_activos }}</b></div>
+  <div class="stat"><span>Membresías activas</span><b>{{ r.membresias_activas }}</b></div>
+  <div class="stat"><span>Membresías por vencer</span><b>{{ r.membresias_por_vencer }}</b></div>
+  <div class="stat"><span>Clases realizadas</span><b>{{ r.total_clases_realizadas }}</b></div>
+  <div class="stat"><span>Máquinas en mantenimiento</span><b>{{ r.maquinas_mantenimiento }}</b></div>
+</div>
+<div class="card">
+  <h2>Requerimientos cubiertos: RF01 → RF50</h2>
+  <p class="nota">Clientes, empleados, entrenadores, membresías (Normal, Gold, Platino), pagos, control de acceso,
+  máquinas, rutinas, clases con descuento automático, pagos a instructores ({{ pago_clase|dinero }} por clase),
+  reportes y resumen mensual. Los módulos visibles dependen de tu rol.</p>
+</div>
+{% endblock %}

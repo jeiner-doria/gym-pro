@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import campo %}
+{% block titulo %}Iniciar sesión{% endblock %}
+{% block cuerpo %}
+<div class="login">
+  <form method="post" class="card">
+    <h1>GYM PRO</h1>
+    <p class="sub">Inicia sesión para continuar</p>
+    {% for cat, m in get_flashed_messages(with_categories=true) %}<div class="msg {{ cat }}">{{ m }}</div>{% endfor %}
+    <div class="grid" style="grid-template-columns:1fr">
+      {{ campo('Usuario', 'usuario', extra='autofocus autocomplete="username"') }}
+      {{ campo('Contraseña', 'contrasena', type='password', extra='autocomplete="current-password"') }}
+    </div>
+    <button class="btn verde">INGRESAR</button>
+    <small>Usuarios de prueba:<br>admin / admin123 (Administrador)<br>empleado / empleado123 (Empleado)<br>entrenador / entrenador123 (Entrenador)</small>
+  </form>
+</div>
+{% endblock %}

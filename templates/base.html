@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}{% endblock %} · GYM PRO</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% block cuerpo %}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">GYM PRO<small>Sistema de gestión de gimnasio</small></div>
+    <h6>NAVEGACIÓN</h6>
+    <nav>
+      {% for texto, ep in menu %}<a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint == ep }}">{{ texto }}</a>{% endfor %}
+    </nav>
+    <div class="pie">
+      <div><small>Sesión</small><br><b>{{ usuario }}</b><br>{{ tipo }}</div>
+      <a class="btn rojo" href="{{ url_for('logout') }}">CERRAR SESIÓN</a>
+    </div>
+  </aside>
+  <main>
+    <header class="top"><h1>{{ self.titulo() }}</h1><p>{% block subtitulo %}{% endblock %}</p></header>
+    {% for cat, m in get_flashed_messages(with_categories=true) %}<div class="msg {{ cat }}">{{ m }}</div>{% endfor %}
+    <div class="modulo">
+      <nav class="subnav">{% block subnav %}{% endblock %}</nav>
+      <section class="contenido">{% block contenido %}{% endblock %}</section>
+    </div>
+  </main>
+</div>
+{% endblock %}
+</body>
+</html>
